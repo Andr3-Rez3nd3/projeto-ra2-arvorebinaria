@@ -61,7 +61,7 @@
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>
-                                com.example.projetora2arvorebinaria/com.example.projetora2arvorebinaria.HelloApplication
+                                com.example.projetora2arvorebinaria/com.example.projetora2arvorebinaria.VisualisarArvore
                             </mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
