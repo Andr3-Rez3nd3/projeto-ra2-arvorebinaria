@@ -77,6 +77,9 @@ public class ArvoreBinaria {
         }
         return no;
     }
+    public No getRoot() {
+        return root;
+    }
     public void emOrdem(){
         emOrdemRec(root);
     }
