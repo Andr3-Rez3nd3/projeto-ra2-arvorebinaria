@@ -11,5 +11,7 @@ public class No<T> {
     }
     public No(Jogador jogador){
         this.jogador = jogador;
+        this.esquerda = null;
+        this.direita = null;
     }
 }
