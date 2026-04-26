@@ -16,5 +16,12 @@ public class Jogador {
     public int getRank() {
         return rank;
     }
-}
 
+    public void setRank(int rank) {
+        this.rank = rank;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+}
