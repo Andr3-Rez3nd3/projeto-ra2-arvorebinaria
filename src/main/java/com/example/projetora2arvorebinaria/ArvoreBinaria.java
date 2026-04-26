@@ -1,94 +1,75 @@
 package com.example.projetora2arvorebinaria;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 public class ArvoreBinaria {
+
     private No root;
-    public void insert(int valor){
-        root = inserir(root, valor);
-    }
-    public boolean search(int valor) {
-        return busca(root, valor) != null;
-    }
-    public Jogador remover(int valor){
-        No removido = busca(root, valor);
-        if (removido != null){
-            root = remover(root, valor);
-            return removido.jogador;
-        }
-        return null;
-    }
-    private No inserir(No atual, int valor){
-        if (atual == null){
-            return new No(new Jogador("Jogador" + valor, valor));
-        }
-        if (valor < atual.jogador.getRank()){
-            atual.direita = inserir(atual.direita, valor);
-        }
-        else if (valor > atual.jogador.getRank()){
-            atual.direita = inserir(atual.direita, valor);
-        }
-        return atual;
-    }
-    private No busca(No atual, int valor){
-        if (atual == null) return null;
 
-        if (valor == atual.jogador.getRank()) {
-            return atual;
-        }
+    //Carregar CSV
+    public void carregarCSV() {
+        try {
+            InputStream is = getClass().getResourceAsStream("/com/example/projetora2arvorebinaria/players.csv");
 
-        if (valor < atual.jogador.getRank()) {
-            return busca(atual.esquerda, valor);
-        } else {
-            return busca(atual.direita, valor);
-        }
-    }
-    private No remover(No atual, int valor){
-        if (atual == null) return null;
-
-        if (valor < atual.jogador.getRank()) {
-            atual.esquerda = remover(atual.esquerda, valor);
-        } else if (valor > atual.jogador.getRank()) {
-            atual.direita = remover(atual.direita, valor);
-        } else {
-            // CASO 1: sem filhos
-            if (atual.esquerda == null && atual.direita == null) {
-                return null;
+            if (is == null) {
+                System.out.println("Arquivo CSV não encontrado!");
+                return;
             }
 
-            // CASO 2: um filho
-            if (atual.esquerda == null) {
-                return atual.direita;
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+
+            String linha;
+            boolean primeiraLinha = true;
+
+            while ((linha = br.readLine()) != null) {
+
+                if (primeiraLinha) {
+                    primeiraLinha = false;
+                    continue;
+                }
+
+                String[] partes = linha.split(",");
+
+                String nome = partes[0];
+                int rank = Integer.parseInt(partes[1]);
+
+                Jogador jogador = new Jogador(nome, rank);
+                inserir(jogador);
             }
 
-            if (atual.direita == null) {
-                return atual.esquerda;
-            }
+            br.close();
 
-            // CASO 3: dois filhos
-            No sucessor = menorValor(atual.direita);
-            atual.jogador = sucessor.jogador;
-            atual.direita = remover(atual.direita, sucessor.jogador.getRank());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    //ABB
+    private void inserir(Jogador jogador) {
+        root = inserirRec(root, jogador);
+    }
+
+    private No inserirRec(No atual, Jogador jogador) {
+
+        if (atual == null) {
+            return new No(jogador);
+        }
+
+        //menor vai pra esquerda
+        if (jogador.getRank() < atual.jogador.getRank()) {
+            atual.esquerda = inserirRec(atual.esquerda, jogador);
+        }
+        //maior vai pra direita
+        else if (jogador.getRank() > atual.jogador.getRank()) {
+            atual.direita = inserirRec(atual.direita, jogador);
         }
 
         return atual;
     }
-    private No menorValor(No no){
-        while (no.esquerda != null) {
-            no = no.esquerda;
-        }
-        return no;
-    }
+
     public No getRoot() {
         return root;
-    }
-    public void emOrdem(){
-        emOrdemRec(root);
-    }
-
-    private void emOrdemRec(No atual){
-        if (atual != null) {
-            emOrdemRec(atual.esquerda);
-            System.out.println("x" + atual.jogador.getNome());
-            emOrdemRec(atual.direita);
-        }
     }
 }

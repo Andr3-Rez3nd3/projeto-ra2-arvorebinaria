@@ -1,14 +1,11 @@
 package com.example.projetora2arvorebinaria;
 
 import javafx.application.Application;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import java.io.BufferedReader;
-import java.io.FileReader;
 
 public class VisualisarArvore extends Application {
 
@@ -16,112 +13,88 @@ public class VisualisarArvore extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("Visualizador de Árvore Binária - Ranking");
 
-        carregarCSV();
+        primaryStage.setTitle("Visualizador de Árvore Binária (CSV)");
 
-        if (arvore.getRoot() == null) {
-            System.out.println("Árvore está vazia!");
-        }
+        arvore.carregarCSV();
 
-        int height = getHeight(arvore.getRoot());
-        int canvasHeight = 100 + height * 120;
-        int canvasWidth = (int) Math.pow(2, height) * 60;
+        int altura = getHeight(arvore.getRoot());
 
-        if (canvasWidth < 800) canvasWidth = 800;
+        int canvasWidth = (int) Math.pow(2, altura) * 40;
+        int canvasHeight = 100 + altura * 120;
 
         Canvas canvas = new Canvas(canvasWidth, canvasHeight);
+
         drawTree(canvas);
 
-        Group root = new Group();
-        root.getChildren().add(canvas);
+        //Scroll na janela
+        javafx.scene.control.ScrollPane scrollPane = new javafx.scene.control.ScrollPane();
 
-        Scene scene = new Scene(root, canvasWidth, canvasHeight);
+        scrollPane.setContent(canvas);
+
+        //arrastar com o mouse
+        scrollPane.setPannable(true);
+
+        scrollPane.setHbarPolicy(javafx.scene.control.ScrollPane.ScrollBarPolicy.ALWAYS);
+        scrollPane.setVbarPolicy(javafx.scene.control.ScrollPane.ScrollBarPolicy.ALWAYS);
+
+        //Tamanho da janela
+        Scene scene = new Scene(scrollPane, 1200, 800);
+
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
-    //Leitura do CSV
-    private void carregarCSV() {
-        try (BufferedReader br = new BufferedReader(new FileReader("players (1).csv"))) {
-
-            String linha;
-            boolean primeiraLinha = true;
-
-            while ((linha = br.readLine()) != null) {
-
-                if (primeiraLinha) {
-                    primeiraLinha = false;
-                    continue;
-                }
-
-                String[] partes = linha.split(",");
-
-                String nickname = partes[0];
-                int ranking = Integer.parseInt(partes[1]);
-
-                System.out.println("Inserindo: " + nickname + " - " + ranking);
-
-                arvore.insert(ranking);
-            }
-
-        } catch (Exception e) {
-            System.out.println("Erro ao ler CSV:");
-            e.printStackTrace();
-        }
+    //altura da arvore
+    private int getHeight(No no) {
+        if (no == null) return 0;
+        return 1 + Math.max(getHeight(no.esquerda), getHeight(no.direita));
     }
-
-    //Desenha a árvore inteira
+    //desenha a arvore na janela
     private void drawTree(Canvas canvas) {
+
         GraphicsContext gc = canvas.getGraphicsContext2D();
-
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-
-        // DEBUG visual
-        gc.setStroke(Color.GRAY);
-        gc.strokeRect(0, 0, canvas.getWidth(), canvas.getHeight());
-
-        drawNode(gc, arvore.getRoot(), canvas.getWidth() / 2, 40, canvas.getWidth() / 4);
-    }
-
-    //Desenha cada nó
-    private void drawNode(GraphicsContext gc, No node, double x, double y, double offset) {
-        if (node == null) return;
-
-        System.out.println("Desenhando nó: " + node.jogador.getNome());
-
-        //círculo
         gc.setStroke(Color.BLACK);
-        gc.strokeOval(x - 20, y - 20, 40, 40);
+        gc.setLineWidth(1.5);
 
-        //texto
-        gc.strokeText("x" + node.jogador.getNome(), x - 15, y + 5);
-
-        // esquerda
-        if (node.esquerda != null) {
-            double newX = x - offset;
-            double newY = y + 100;
-
-            gc.strokeLine(x, y + 20, newX, newY - 20);
-
-            drawNode(gc, node.esquerda, newX, newY, offset / 2);
-        }
-
-        //direita
-        if (node.direita != null) {
-            double newX = x + offset;
-            double newY = y + 100;
-
-            gc.strokeLine(x, y + 20, newX, newY - 20);
-
-            drawNode(gc, node.direita, newX, newY, offset / 2);
-        }
+        drawNode(gc,
+                arvore.getRoot(),
+                canvas.getWidth() / 2,
+                40,
+                canvas.getWidth() / 4,
+                1);
     }
 
-    //Altura da árvore
-    private int getHeight(No node) {
-        if (node == null) return 0;
-        return 1 + Math.max(getHeight(node.esquerda), getHeight(node.direita));
+    //desenho dos nós
+    private void drawNode(GraphicsContext gc, No no,
+                          double x, double y, double xOffset, int level) {
+
+        if (no == null) return;
+        gc.strokeOval(x - 18, y - 18, 36, 36);
+
+        //centralizar texto
+        String textoNome = no.jogador.getNome();
+        String textoRank = String.valueOf(no.jogador.getRank());
+
+        gc.strokeText(textoNome, x - (textoNome.length() * 3), y - 2);
+        gc.strokeText("R:" + textoRank, x - 10, y + 10);
+
+        if (no.esquerda != null) {
+            double newX = x - xOffset;
+            double newY = y + 120;
+            gc.strokeLine(x, y + 18, newX, newY - 18);
+
+            drawNode(gc, no.esquerda, newX, newY, xOffset / 2, level + 1);
+        }
+
+        if (no.direita != null) {
+            double newX = x + xOffset;
+            double newY = y + 120;
+            gc.strokeLine(x, y + 18, newX, newY - 18);
+
+            drawNode(gc, no.direita, newX, newY, xOffset / 2, level + 1);
+        }
     }
 
     public static void main(String[] args) {
