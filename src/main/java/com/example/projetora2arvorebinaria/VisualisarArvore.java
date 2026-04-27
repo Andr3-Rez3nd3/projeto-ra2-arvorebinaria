@@ -8,9 +8,6 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class VisualisarArvore extends Application {
 
     private ArvoreBinaria arvore = new ArvoreBinaria();
@@ -33,7 +30,7 @@ public class VisualisarArvore extends Application {
             arvore.insert(new Jogador("Fallback", 0));
         }
 
-        List<Jogador> lista = new ArrayList<>();
+        ListaEncadeada lista = new ListaEncadeada();
         coletar(arvore.getRoot(), lista);
 
         int altura = Math.max(1, getAltura(arvore.getRoot()));
@@ -66,11 +63,11 @@ public class VisualisarArvore extends Application {
         stage.show();
     }
 
-    private void coletar(No no, List<Jogador> lista) {
+    private void coletar(No no, ListaEncadeada lista) {
         if (no == null) return;
 
         coletar(no.esquerda, lista);
-        lista.add(no.jogador);
+        lista.adicionar(no.jogador);
         coletar(no.direita, lista);
     }
 
