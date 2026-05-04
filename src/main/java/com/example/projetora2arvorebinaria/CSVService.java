@@ -1,18 +1,16 @@
 package com.example.projetora2arvorebinaria;
-
 import java.io.*;
-import java.util.*;
 
 public class CSVService {
 
-    public List<Jogador> carregar() {
-        List<Jogador> lista = new ArrayList<>();
+    public Fila<Jogador> carregar() {
+        Fila<Jogador> fila = new Fila<>();
 
         try (InputStream is = getClass().getResourceAsStream("/players.csv")) {
 
             if (is == null) {
                 System.out.println("CSV não encontrado!");
-                return lista;
+                return fila;
             }
 
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
@@ -25,21 +23,23 @@ public class CSVService {
                 String nome = p[0];
                 int rank = Integer.parseInt(p[1]);
 
-                lista.add(new Jogador(nome, rank));
+                fila.enqueue(new Jogador(nome, rank));
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return lista;
+        return fila;
     }
-    public void salvar(List<Jogador> jogadores) {
+
+    public void salvar(Fila<Jogador> fila) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter("players.csv"))) {
 
             bw.write("nickname,ranking");
 
-            for (Jogador j : jogadores) {
+            while (!fila.estaVazia()) {
+                Jogador j = fila.dequeue();
                 bw.write("\n" + j.getNome() + "," + j.getRank());
             }
 

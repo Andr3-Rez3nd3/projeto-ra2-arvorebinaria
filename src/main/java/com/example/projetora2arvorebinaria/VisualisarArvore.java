@@ -17,7 +17,10 @@ public class VisualisarArvore extends Application {
 
         CSVService csv = new CSVService();
 
-        for (Jogador j : csv.carregar()) {
+        Fila<Jogador> fila = csv.carregar();
+
+        while (!fila.estaVazia()) {
+            Jogador j = fila.dequeue();
             arvore.insert(j);
         }
 
